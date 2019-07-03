@@ -4,48 +4,96 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+    private float speed = 700f;
     [SerializeField]
-    private float speed = 5f;
+    private float senseRadius = 8f;
 
-    private LogLovel log;
-    private Rigidbody2D rb;
-    private bool allowedToMove;
-    private bool facingRight;
-    private bool colliderOn;
-    private bool firstWall;
-    public float moveSpeed = 1500f;
+    protected LogLovel log;
+    protected Rigidbody2D rb;
+    protected bool allowedToMove;
+    protected bool facingRight;
+    protected bool colliderOn;
+    protected bool firstWall;
+    protected bool seenPlayer;
+    protected bool follow;
+    public float moveSpeed;
     public float maxMoveSpeed = 14;
     public float timeSinceMove = 0f;
     public float timeSpawnnedIn;
-    private GameObject player;
+    protected GameObject player;
+    protected manager manager;
+    protected CircleCollider2D senseRadiusCollider;
+    private Player playerScript;
+    protected int lastdir;
+    protected bool playerTouch;
 
-    private void Log(string message, LogLovel.LogCategory logCategory)
+    protected void Log(string message, LogLovel.LogCategory logCategory)
     {
-        Debug.Log(logCategory + " : " + message);
+        //log.Log(message, logCategory);
+    }
+
+    public Enemy()
+    {
+        allowedToMove = false;
+        seenPlayer = false;
+        facingRight = true;
+        firstWall = true;
+        colliderOn = true;
+        follow = true;
+        timeSpawnnedIn = 0f;
+        lastdir = 1;
+        playerTouch = false;
+        log = new LogLovel();
+    }
+
+    protected void notFollow()
+    {
+        follow = false;
     }
 
     private void Awake()
     {
+        AwakeElements();
+    }
+
+    protected void AwakeElements()
+    {
         rb = GetComponent<Rigidbody2D>();
         player = GameObject.FindGameObjectWithTag("Player");
-        allowedToMove = true;
-        facingRight = true;
-        firstWall = true;
-        colliderOn = false;
-        timeSpawnnedIn = 0f;
+        playerScript = player.GetComponent<Player>();
+        manager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<manager>();
+        senseRadiusCollider = gameObject.GetComponentInChildren<CircleCollider2D>();
+        senseRadiusCollider.radius = senseRadius;
+        moveSpeed = Random.Range(speed - 4, speed);
     }
+
+    #region Collision and Triggers
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        string colName = collision.collider.name;
+        Collider2D collider = gameObject.GetComponentInChildren<BoxCollider2D>();
+
+        if (colName.Equals(collider.name))
+            Physics2D.IgnoreCollision(collider, collision.collider);
+
         Log("Collided With : " + collision.collider.name, LogLovel.LogCategory.PHYSICS);
         if (colliderOn)
         {
-            allowedToMove = true;
             if (collision.collider.name.Equals("WallCollider") && firstWall)
             {
-                collision.rigidbody.velocity = new Vector3();
-                firstWall = !firstWall;
-                Log("Hit Wall", LogLovel.LogCategory.PHYSICS);
+                 rb.velocity = Vector3.zero;
+                 firstWall = !firstWall;
+                 allowedToMove = false;
+            }
+            else if(collision.collider.name.Equals("Player"))
+            {
+                playerScript.TakeDamage(20);
+                playerTouch = true;
+            }
+            else
+            {
+                allowedToMove = true;
             }
         }
     }
@@ -54,14 +102,48 @@ public class Enemy : MonoBehaviour
     {
         firstWall = !firstWall;
         Log("Stopped Colliding Wall", LogLovel.LogCategory.PHYSICS);
+        playerTouch = false;
+
+        //allowedToMove = true;
     }
 
-    private float getTime()
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(colliderOn)
+        {
+            //Debug.Log(follow);
+            if (collision.name == "Player" && follow)
+            {
+                allowedToMove = true;
+                seenPlayer = true;
+            }
+            else if(collision.name == "Player")
+            {
+                seenPlayer = true;
+                allowedToMove = false;
+            }
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (colliderOn)
+        {
+            if (collision.name == "Player" && !follow)
+            {
+                allowedToMove = true;
+            }
+        }
+    }
+
+    #endregion
+
+    protected float getTime()
     {
         return Time.deltaTime;
     }
 
-    private void setBodyVelocity(Vector3 vector)
+    protected void setBodyVelocity(Vector3 vector)
     {
         rb.velocity = vector;
     }
@@ -73,34 +155,49 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-        timeSpawnnedIn += getTime();
-        Log("Time Since Spawn: " + timeSpawnnedIn, LogLovel.LogCategory.PHYSICS);
-        if (timeSpawnnedIn < 1)
+        if (!manager.gameOver)
         {
-            setBodyVelocity(Vector3.zero);
-            Log("poo", LogLovel.LogCategory.TEST);
-        }
-        if (allowedToMove)
-        {
-            if (player.transform.position.x > transform.position.x)
+            timeSpawnnedIn += getTime();
+            if (timeSpawnnedIn < 1)
             {
-                Move(1);
+                setBodyVelocity(Vector3.zero);
             }
-            if (player.transform.position.x < transform.position.x)
+            if (allowedToMove)
             {
-                Move(-1);
-            }
-            if (player.transform.position.x < transform.position.x)
-            {
-                Jump();
+                MovementUpdates();
             }
         }
     }
 
-    private void Jump()
+    #region Movements
+
+    protected void MovementUpdates()
     {
-        rb.velocity = new Vector2(getBodyVelocity().x, moveSpeed * Time.deltaTime);
+        if (allowedToMove)
+        {
+            if (player.transform.position.x > transform.position.x)
+            {
+                lastdir = 1;
+                Move(lastdir);
+            }
+            if (player.transform.position.x < transform.position.x)
+            {
+                lastdir = -1;
+                Move(lastdir);
+            }
+            if (playerTouch)//Mathf.Abs(player.transform.position.x - transform.position.x) <= 1 )
+            {
+                //Change this to be after they hit
+                Jump(lastdir);
+            }
+        }
+    }
+
+    protected void Jump(int dir)
+    {
+        rb.AddForce(new Vector2(20f * -dir, 20f), ForceMode2D.Impulse);
         allowedToMove = false;
+        follow = false;
     }
 
     protected void Move(int dir)
@@ -140,4 +237,5 @@ public class Enemy : MonoBehaviour
                 transform.eulerAngles = new Vector3(0, 0, 0);
         }
     }
+    #endregion
 }

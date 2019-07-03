@@ -9,17 +9,20 @@ public class Bullet : MonoBehaviour
     private float bulletSpeed = 20f;
 
     private float angle = 0f;
-    private float distance = 0f;
     private Rigidbody2D rb;
     private GameObject player;
     private Vector2 mousePos;
     private Vector3 lookPos;
     private float timeSinceShot = 0f;
-
-    private void Awake()
+    private manager manager;
+   
+    public void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        player = GameObject.FindGameObjectWithTag("Player");
+        player = GameObject.FindGameObjectWithTag(ConstantValues.PLAYER_TAG);
+        manager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<manager>();
+        mousePos = new Vector2();
+        lookPos = new Vector3();
         calculateTrajectory();
         rb.rotation = angle;
     }
@@ -49,7 +52,7 @@ public class Bullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.name.Equals("Player"))
+        if (!collision.name.Equals("Player") && !collision.name.Equals("Senser"))
         {
             destroyBullet();
         }
@@ -58,6 +61,7 @@ public class Bullet : MonoBehaviour
         {
             destroyBullet();
             Destroy(collision.transform.parent.gameObject);
+            manager.enemyKilled();
         }
     }
 }

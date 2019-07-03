@@ -67,9 +67,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1635883656868576512}
   - component: {fileID: 1635883656868576543}
-  - component: {fileID: 1877379879317929071}
   - component: {fileID: 31446580977362221}
-  - component: {fileID: 3507398280550042766}
+  - component: {fileID: 3512361732794765699}
   m_Layer: 0
   m_Name: Ninja
   m_TagString: Enemy
@@ -86,9 +85,10 @@ Transform:
   m_GameObject: {fileID: 1635883656868576542}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.65, y: 25.02, z: 0}
-  m_LocalScale: {x: 2.366209, y: 2.366209, z: 2.366209}
+  m_LocalScale: {x: 1.87, y: 2.02, z: 2.366209}
   m_Children:
   - {fileID: 1635883656312071994}
+  - {fileID: 6100575319254476143}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -140,23 +140,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &1877379879317929071
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1635883656868576542}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3054f34f94cdaff4486092184182be6d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 5
-  moveSpeed: 400
-  maxMoveSpeed: 14
-  timeSinceMove: 0
-  timeSpawnnedIn: 0
 --- !u!50 &31446580977362221
 Rigidbody2D:
   serializedVersion: 4
@@ -178,7 +161,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &3507398280550042766
+--- !u!114 &3512361732794765699
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -187,6 +170,58 @@ MonoBehaviour:
   m_GameObject: {fileID: 1635883656868576542}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 879c8a0f40f42cd40bcdeb827ff80f63, type: 3}
+  m_Script: {fileID: 11500000, guid: f6eaff47eb9efb3419eeb90a776c700a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  senseRadius: 8
+  moveSpeed: 0
+  maxMoveSpeed: 18
+  timeSinceMove: 0
+  timeSpawnnedIn: 0
+--- !u!1 &8612060172231025966
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6100575319254476143}
+  - component: {fileID: 5804669535550685348}
+  m_Layer: 0
+  m_Name: Senser
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6100575319254476143
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8612060172231025966}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1635883656868576512}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!58 &5804669535550685348
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8612060172231025966}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 5

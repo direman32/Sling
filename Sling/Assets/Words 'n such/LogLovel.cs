@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LogLovel : MonoBehaviour
+public class LogLovel
 {
     [SerializeField]
-    private Dictionary<string, bool> DebugsEnabled = new Dictionary<string, bool>();
-    private bool debugWorking = true;
+    private Dictionary<LogCategory, bool> DebugsEnabled = new Dictionary<LogCategory, bool>();
     private string[] names;
 
     public enum LogCategory
@@ -21,26 +20,18 @@ public class LogLovel : MonoBehaviour
     };
     private void Awake()
     {
-        DebugsEnabled.Add("All", false);
-        DebugsEnabled.Add("PHYSICS", false);
-        DebugsEnabled.Add("ANIMATION", false);
-        DebugsEnabled.Add("OUTERCLASS", false);
-        DebugsEnabled.Add("MOVEMENT", false);
-        DebugsEnabled.Add("WEAPONS", false);
-        DebugsEnabled.Add("TEST", false);
-        if (debugWorking)
-        {
-            names = new string[]{"All","PHYSICS","ANIMATION","OUTERCLASS","MOVEMENT","WEAPONS","TEST"};
-        }
+        DebugsEnabled.Add(LogCategory.ALL, false);
+        DebugsEnabled.Add(LogCategory.PHYSICS, false);
+        DebugsEnabled.Add(LogCategory.ANIMATION, false);
+        DebugsEnabled.Add(LogCategory.OUTERCLASS, false);
+        DebugsEnabled.Add(LogCategory.MOVEMENT, false);
+        DebugsEnabled.Add(LogCategory.WEAPONS, false);
+        DebugsEnabled.Add(LogCategory.TEST, false);
     }
 
     public void Log(string message, LogCategory logCategory)
     {
-        //names count
-        Debug.Log(DebugsEnabled.Count);
-        for (int i = 0; i < DebugsEnabled.Count; i++)
-        {
-                Debug.Log(logCategory + " : " + message);
-        }
+        //if (DebugsEnabled[logCategory] || DebugsEnabled[LogCategory.ALL])
+            //Debug.Log(logCategory + " : " + message);
     }
 }
